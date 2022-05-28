@@ -10,6 +10,20 @@ public class UsersReader extends PropertiesLoader {
         super("properties/users.properties");
     }
 
+    public User getUser(String name){
+        switch(name){
+            case "Tom":{
+                return this.getTom();
+            }
+            case "Lucy":{
+                return this.getLucy();
+            }
+            case "John":
+                return this.getJohn();
+            default: throw new IllegalArgumentException("Person's name not recognized");
+        }
+    }
+
     public User getKate(){
         return new User(properties.getProperty("kate.apiKey"),
                 properties.getProperty("kate.token"),

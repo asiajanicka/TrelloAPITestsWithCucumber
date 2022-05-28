@@ -7,12 +7,18 @@ import api.handlers.ResponseHandler;
 import cucumber.context.Context;
 import io.cucumber.java.en.Then;
 import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import model.Board;
+import model.Label;
+import model.TrelloList;
 import org.apache.http.HttpStatus;
 import propertiesReaders.AppPropertiesReader;
 import utils.users.SetupData;
+import utils.users.Utils;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,35 +30,30 @@ public class ReadBoardSteps {
     private final ReadRequest readRequest;
     private final Context context;
     private final AppPropertiesReader appPropertiesReader;
+    private final GetLabelsOnBoardSteps getLabelsOnBoardSteps;
+    private final GetListsOnBoardSteps getListsOnBoardSteps;
 
 
     @Then("Kate sees board {string} in workspace {string} with default params")
     public void kate_sees_board_in_workspace_with_default_params(String boardName, String workspaceName) {
-        requestHandler.clearAll();
-        requestHandler.authenticateKate();
-        String boardId = context.getBoardId(boardName);
-        Board board = readBoardById(boardId);
-        assertBoardNameAndWorkspaceName(boardName, workspaceName, board);
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
         assertBoardDefaultParams(board);
     }
 
     @Then("Kate sees board with name of limit length in workspace {string}")
     public void kate_sees_board_with_name_of_length_in_workspace(String workspaceName) {
-        requestHandler.clearAll();
-        requestHandler.authenticateKate();
         String boardName = context.getBoardNameWithGivenLength();
-        String boardId = context.getBoardId(boardName);
-        Board board = readBoardById(boardId);
-        assertBoardNameAndWorkspaceName(boardName, workspaceName, board);
+        kate_sees_board_in_workspace(boardName, workspaceName);
     }
 
     @Then("Kate sees board {string} in workspace {string}")
-    public void kate_sees_board_in_workspace(String boardName, String workspaceName) {
+    public Board kate_sees_board_in_workspace(String boardName, String workspaceName) {
         requestHandler.clearAll();
         requestHandler.authenticateKate();
         String boardId = context.getBoardId(boardName);
-        Board board = readBoardById(boardId);
+        Board board = readBoard(boardId);
         assertBoardNameAndWorkspaceName(boardName, workspaceName, board);
+        return board;
     }
 
     @Then("response is {string} with status code {int}")
@@ -61,7 +62,85 @@ public class ReadBoardSteps {
         assertThat(responseHandler.getResponse().getBody().asString()).contains(errorText);
     }
 
-    private Board readBoardById(String id) {
+    @Then("Kate sees two boards with name {string} in workspace {string}")
+    public void kate_sees_two_boards_with_name_in_workspace(String boardName, String workspaceName) {
+        requestHandler.clearAll();
+        requestHandler.authenticateKate();
+        String board_1_Id = context.getBoardId(boardName);
+        Board board_1 = readBoard(board_1_Id);
+        Allure.step(String.format("Kate reads first board \"%s\"", boardName));
+        assertBoardNameAndWorkspaceName(boardName, workspaceName, board_1);
+        String board_2_Id = context.getBoardId(boardName+"Duplicate");
+        Board board_2 = readBoard(board_2_Id);
+        Allure.step(String.format("Kate reads second board \"%s\"", boardName));
+        assertBoardNameAndWorkspaceName(boardName, workspaceName, board_2);
+    }
+
+    @Then("Kate sees board {string} without default labels in workspace {string}")
+    public void kate_sees_board_without_default_labels_in_workspace(String boardName, String workspaceName) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        List<Label> labelsList = getLabelsOnBoardSteps.getLabels(board.getId());
+        assertThat(labelsList).isEmpty();
+        Allure.step("Assert if label list is empty");
+    }
+
+    @Then("Kate sees board {string} without default lists in workspace {string}")
+    public void kate_sees_board_without_default_lists_in_workspace(String boardName, String workspaceName) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        List<TrelloList> trelloListsList = getListsOnBoardSteps.getLists(board.getId());
+        assertThat(trelloListsList).isEmpty();
+        Allure.step("Assert if list of Trello lists is empty");
+    }
+
+    @Then("Kate sees board {string} with correct description in workspace {string}")
+    public void kate_sees_board_with_correct_description_in_workspace(String boardName, String workspaceName) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        String boardDesc =  context.getBoardDescWithGivenLength();
+        assertThat(board.getDesc()).isEqualTo(boardDesc);
+        Allure.step(String.format("Assert is board's description is \"%s\"", boardDesc));
+    }
+
+    @Then("Kate sees board {string}")
+    public void kate_sees_board(String boardName) {
+        requestHandler.clearAll();
+        requestHandler.authenticateKate();
+        String boardId = context.getBoardId(boardName);
+        Board board = readBoard(boardId);
+        assertThat(board.getName()).isEqualTo(boardName);
+        Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
+    }
+
+    @Then("Kate sees {string} board {string} in workspace {string}")
+    public void kate_sees_board_in_workspace(String boardType, String boardName, String workspaceName) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        assertThat(board.getPrefs().getPermissionLevel()).isEqualTo(Utils.getPermissionLevel(boardType));
+        Allure.step(String.format("Assert if board is %s", boardType));
+    }
+
+    @Then("{string} reads board {string}")
+    public void reads_board(String personName, String boardName) {
+        requestHandler.clearAll();
+        requestHandler.authenticate(personName);
+        String boardId = context.getBoardId(boardName);
+        Board board = readBoard(boardId);
+        assertThat(board.getName()).isEqualTo(boardName);
+        Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
+    }
+
+
+    @Then("{string} can not read board {string}")
+    public void can_not_read_board(String personName, String boardName) {
+        requestHandler.clearAll();
+        requestHandler.authenticate(personName);
+        String boardId = context.getBoardId(boardName);
+        requestHandler.setEndpoint(BoardEndpoint.getBoard(boardId));
+        Response response = readRequest.read(requestHandler);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+        Allure.step("Assert if status code is UNAUTHORIZED");
+        assertThat(response.getBody().asString()).contains("unauthorized permission requested");
+    }
+
+    private Board readBoard(String id) {
         requestHandler.setEndpoint(BoardEndpoint.getBoard(id));
         Response response = readRequest.read(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);
@@ -69,16 +148,18 @@ public class ReadBoardSteps {
         return response.as(Board.class);
     }
 
+    @Step("Assert if board called {0} is in workspace {1}")
     public void assertBoardNameAndWorkspaceName(String boardName, String workspaceName, Board board){
         assertThat(board.getName()).isEqualTo(boardName);
-        Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
-        String workspaceId = SetupData.getWorkspaceId(workspaceName);
+        Allure.step(String.format("Assert if board name is \"%s\"", boardName));
+        String workspaceId = context.getWorkspaceId(workspaceName);
         assertThat(board.getIdOrganization()).isEqualTo(workspaceId);
-        Allure.step(String.format("Assert if board is created in workspace \"%s\" with id \"%s\"",
+        Allure.step(String.format("Assert if board is created in workspace \"%s\"",
                 workspaceName,
                 workspaceId));
     }
 
+    @Step("Assert board default params ")
     public void assertBoardDefaultParams(Board board){
         assertThat(board.getPrefs().getPermissionLevel())
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamPermissionLevel());
@@ -90,10 +171,7 @@ public class ReadBoardSteps {
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamInvitationsPrefs());
         assertThat(board.getPrefs().getSelfJoin())
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamSelfJoinPrefs());
-        assertThat(board.getPrefs().getBackgroundColor())
-                .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultPramBackgroundColor());
         assertThat(board.getPrefs().getCardAging())
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamCardAgingPrefs());
     }
-
 }

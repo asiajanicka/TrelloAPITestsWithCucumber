@@ -19,7 +19,7 @@ public class BoardProperties {
     private String defaultParamVotingPrefs;
     private String defaultParamCommentsPrefs;
     private String defaultParamInvitationsPrefs;
-    private String defaultParamSelfJoinPrefs;
+    private Boolean defaultParamSelfJoinPrefs;
     private String defaultPramBackgroundColor;
     private String defaultParamCardAgingPrefs;
 
@@ -38,7 +38,7 @@ public class BoardProperties {
         defaultParamVotingPrefs = properties.getProperty("board.defaultParam.votingPrefs");
         defaultParamCommentsPrefs = properties.getProperty("board.defaultParam.commentsPrefs");
         defaultParamInvitationsPrefs = properties.getProperty("board.defaultParam.invitationsPrefs");
-        defaultParamSelfJoinPrefs = properties.getProperty("board.defaultParam.selfJoinPrefs");
+        defaultParamSelfJoinPrefs = Boolean.parseBoolean(properties.getProperty("board.defaultParam.selfJoinPrefs"));
         defaultPramBackgroundColor = properties.getProperty("board.defaultPram.backgroundColor");
         defaultParamCardAgingPrefs = properties.getProperty("board.defaultParam.cardAgingPrefs");
 
