@@ -172,7 +172,45 @@ public class CreateBoardSteps {
         } else if (type.equalsIgnoreCase("invalid")) {
             requestHandler.addQueryParam("prefs_permissionLevel", "invalid");
         } else {
-            throw new IllegalArgumentException("Value not recognized");
+            throw new IllegalArgumentException("Value for permission level not recognized");
+        }
+    }
+
+    @Given("where {string} can vote on cards")
+    public void where_can_vote_on_cards(String votingGroup) {
+        String votingPrefs;
+        switch (votingGroup) {
+            case "only board members": {
+                votingPrefs = "members";
+                break;
+            }
+            case "workspace members": {
+                votingPrefs = "org";
+                break;
+            }
+            case "public users": {
+                votingPrefs = "public";
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Voting group not recognized");
+        }
+        requestHandler.addQueryParam("prefs_voting", votingPrefs);
+    }
+
+    @Given("where voting on cards is disabled")
+    public void where_voting_on_cards_is_disabled() {
+        requestHandler.addQueryParam("prefs_voting", "disabled");
+    }
+
+    @Given("voting group set to {string} value")
+    public void voting_group_set_to_value(String type) {
+        if (type.equalsIgnoreCase("blank")) {
+            requestHandler.addQueryParam("prefs_voting", "");
+        } else if (type.equalsIgnoreCase("invalid")) {
+            requestHandler.addQueryParam("prefs_voting", "invalid");
+        } else {
+            throw new IllegalArgumentException("Value for voting prefs not recognized");
         }
     }
 
@@ -219,6 +257,19 @@ public class CreateBoardSteps {
         requestHandler.setEndpoint(BoardEndpoint.createBoard());
         Response response = createBoardRequest.create(requestHandler);
         responseHandler.setResponse(response);
+    }
+
+    @When("Kate creates board {string} with voting set to {string}")
+    public void kate_creates_board_with_voting_set_to(String expectedBoardName, String votingGroup) {
+        Board board = kate_creates_board(expectedBoardName);
+        String actualVotingLevel = board.getPrefs().getVoting();
+        String expectedVotingLevel = Utils.getVotingLevel(votingGroup);
+        assertThat(actualVotingLevel)
+                .withFailMessage("Board voting group is \"%s\" instead of \"%s\"",
+                        actualVotingLevel,
+                        expectedVotingLevel)
+                .isEqualTo(expectedVotingLevel);
+        Allure.step(String.format("Assert if board voting group is \"%s\"", votingGroup));
     }
 
     private void createBoardSetup(String boardName, String workspaceName) {

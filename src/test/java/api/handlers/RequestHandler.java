@@ -50,6 +50,11 @@ public class RequestHandler {
         this.addQueryParam("token", usersReader.getLucy().getToken());
     }
 
+    public void authenticateJohn(){
+        this.addQueryParam("key", usersReader.getJohn().getApiKey());
+        this.addQueryParam("token", usersReader.getJohn().getToken());
+    }
+
     public void authenticate(String name){
         switch(name){
             case "Tom":{
@@ -61,6 +66,7 @@ public class RequestHandler {
                 break;
             }
             case "John":
+                this.authenticateJohn();
                 break;
             default: throw new IllegalArgumentException("Person's name not recognized");
         }

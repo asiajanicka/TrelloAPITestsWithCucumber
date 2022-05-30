@@ -142,6 +142,21 @@ public class ReadBoardSteps {
         Allure.step(String.format("Assert if board is %s", boardType));
     }
 
+    @Then("Kate sees board {string} in workspace {string} with voting set to {string}")
+    public void kate_sees_board_in_workspace_with_voting_set_to(String boardName,
+                                                                String workspaceName,
+                                                                String votingGroup) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        String actualVotingLevel = board.getPrefs().getVoting();
+        String expectedVotingLevel = Utils.getVotingLevel(votingGroup);
+        assertThat(actualVotingLevel)
+                .withFailMessage("Board voting group is \"%s\" instead of \"%s\"",
+                        actualVotingLevel,
+                        expectedVotingLevel)
+                .isEqualTo(expectedVotingLevel);
+        Allure.step(String.format("Assert if board voting group is \"%s\"", votingGroup));
+    }
+
     @Then("{string} reads board {string}")
     public void reads_board(String personName, String boardName) {
         requestHandler.clearAll();

@@ -36,6 +36,8 @@ public class UpdateMemberOfWorkspaceSteps {
                 .withFailMessage("List of workspace members' ids does not contain %s' id", personName)
                 .contains(usersReader.getUser(personName).getUserId());
         Allure.step(String.format("Assert if %s was added to workspace", personName));
+        requestHandler.clearAll();
+        requestHandler.authenticateKate();
     }
 
     public void updateMemberSetup(String workspaceId, String memberId, String type) {

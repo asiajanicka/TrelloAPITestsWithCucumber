@@ -3,6 +3,8 @@ package cucumber.steps.board;
 import TrelloURLs.BoardEndpoint;
 import api.ReadRequest;
 import api.handlers.RequestHandler;
+import cucumber.context.Context;
+import io.cucumber.java.en.When;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
@@ -19,6 +21,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GetListsOnBoardSteps {
     private final RequestHandler requestHandler;
     private final ReadRequest readRequest;
+    private final Context context;
+
+    @When("Kate sees default list {string} on board {string}")
+    public void kate_sees_default_list_on_board(String listName, String boardName) {
+        requestHandler.clearAll();
+        requestHandler.authenticateKate();
+        String boardId = context.getBoardId(boardName);
+        List<TrelloList> listsOnBoard = getLists(boardId);
+        assertThat(listsOnBoard).extracting(trelloList -> trelloList.getName())
+                .withFailMessage("Board does not have list called \"%s\"", listName)
+                .contains(listName);
+        Allure.step(String.format("Assert if list \"%s\" is on board", listName));
+        TrelloList trelloList = listsOnBoard.stream()
+                .filter(list -> list.getName().equals(listName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("List with given name does not exist on board"));
+        context.addTrelloList(listName, trelloList);
+    }
 
     @Step("Get Trello lists on board")
     public List<TrelloList> getLists(String boardId){

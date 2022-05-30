@@ -179,15 +179,28 @@ Feature: Create a board with basic params
     When Kate creates board "MY BOARD"
     Then Kate sees board "MY BOARD"
 
-#  prefs_permissionLevel: blank value for permissionLevelPrefs
+#  prefs_permissionLevel: blank or invalid
   @cleanup @with_workspace
   Scenario Outline: Kate can not create board with <value> permissions level prefs
     Given board name "MY BOARD" and workspace "WORKSPACE 1"
-    And permission level set to <value> value
+    And permission level set to "<value>" value
     When Kate tries to create board
     Then response is "invalid value for prefs_permissionLevel" with status code 400
 
     Examples:
-      | value     |
-      | "blank"   |
-      | "invalid" |
+      | value   |
+      | blank   |
+      | invalid |
+
+#  prefs_voting: blank or invalid
+  @cleanup @with_workspace
+  Scenario Outline: Kate can not create board with <value> value for voting group who can vote on cards
+    Given board name "MY BOARD" and workspace "WORKSPACE 1"
+    And voting group set to "<value>" value
+    When Kate tries to create board
+    Then response is "invalid value for prefs_voting" with status code 400
+
+    Examples:
+      | value   |
+      | blank   |
+      | invalid |
