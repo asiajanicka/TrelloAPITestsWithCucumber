@@ -15,7 +15,6 @@ import model.Label;
 import model.TrelloList;
 import org.apache.http.HttpStatus;
 import propertiesReaders.AppPropertiesReader;
-import utils.users.SetupData;
 import utils.users.Utils;
 
 import java.util.List;
@@ -59,7 +58,9 @@ public class ReadBoardSteps {
     @Then("response is {string} with status code {int}")
     public void response_is_with_status_code(String errorText, Integer statusCode) {
         assertThat(responseHandler.getStatusCode()).isEqualTo(statusCode);
+        Allure.step(String.format("Assert status code: %s", statusCode));
         assertThat(responseHandler.getResponse().getBody().asString()).contains(errorText);
+        Allure.step(String.format("Assert if error response contain text \"%s\"", errorText));
     }
 
     @Then("Kate sees two boards with name {string} in workspace {string}")
@@ -70,7 +71,7 @@ public class ReadBoardSteps {
         Board board_1 = readBoard(board_1_Id);
         Allure.step(String.format("Kate reads first board \"%s\"", boardName));
         assertBoardNameAndWorkspaceName(boardName, workspaceName, board_1);
-        String board_2_Id = context.getBoardId(boardName+"Duplicate");
+        String board_2_Id = context.getBoardId(boardName + "Duplicate");
         Board board_2 = readBoard(board_2_Id);
         Allure.step(String.format("Kate reads second board \"%s\"", boardName));
         assertBoardNameAndWorkspaceName(boardName, workspaceName, board_2);
@@ -80,7 +81,11 @@ public class ReadBoardSteps {
     public void kate_sees_board_without_default_labels_in_workspace(String boardName, String workspaceName) {
         Board board = kate_sees_board_in_workspace(boardName, workspaceName);
         List<Label> labelsList = getLabelsOnBoardSteps.getLabels(board.getId());
-        assertThat(labelsList).isEmpty();
+        Allure.step("Get labels on board");
+        assertThat(labelsList)
+                .withFailMessage("Board has %d labels when it should be have none",
+                        labelsList.size())
+                .isEmpty();
         Allure.step("Assert if label list is empty");
     }
 
@@ -88,15 +93,25 @@ public class ReadBoardSteps {
     public void kate_sees_board_without_default_lists_in_workspace(String boardName, String workspaceName) {
         Board board = kate_sees_board_in_workspace(boardName, workspaceName);
         List<TrelloList> trelloListsList = getListsOnBoardSteps.getLists(board.getId());
-        assertThat(trelloListsList).isEmpty();
+        Allure.step("Get lists on board");
+        assertThat(trelloListsList)
+                .withFailMessage("Board has %d trello lists when it should have none",
+                        trelloListsList.size())
+                .isEmpty();
         Allure.step("Assert if list of Trello lists is empty");
     }
 
     @Then("Kate sees board {string} with correct description in workspace {string}")
     public void kate_sees_board_with_correct_description_in_workspace(String boardName, String workspaceName) {
         Board board = kate_sees_board_in_workspace(boardName, workspaceName);
-        String boardDesc =  context.getBoardDescWithGivenLength();
-        assertThat(board.getDesc()).isEqualTo(boardDesc);
+        String boardDesc = context.getBoardDescWithGivenLength();
+        String actualBoardDesc = board.getDesc();
+        assertThat(actualBoardDesc)
+                .withFailMessage("Board has incorrect description. Actual desc is \"s\", when" +
+                        "it should be \"s\"",
+                        actualBoardDesc,
+                        boardDesc)
+                .isEqualTo(boardDesc);
         Allure.step(String.format("Assert is board's description is \"%s\"", boardDesc));
     }
 
@@ -106,14 +121,24 @@ public class ReadBoardSteps {
         requestHandler.authenticateKate();
         String boardId = context.getBoardId(boardName);
         Board board = readBoard(boardId);
-        assertThat(board.getName()).isEqualTo(boardName);
+        String actualBoardName = board.getName();
+        assertThat(board.getName())
+                .withFailMessage("Board has incorrect name. Actual name is \"%s\", when " +
+                        "it should be \"%s\"",
+                        actualBoardName,
+                        boardName).isEqualTo(boardName);
         Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
     }
 
     @Then("Kate sees {string} board {string} in workspace {string}")
     public void kate_sees_board_in_workspace(String boardType, String boardName, String workspaceName) {
         Board board = kate_sees_board_in_workspace(boardName, workspaceName);
-        assertThat(board.getPrefs().getPermissionLevel()).isEqualTo(Utils.getPermissionLevel(boardType));
+        String actualPermissionLevel = board.getPrefs().getPermissionLevel();
+        assertThat(actualPermissionLevel)
+                .withFailMessage("Board permission level is \"%s\" instead of \"%s\"",
+                        actualPermissionLevel,
+                        boardType)
+                .isEqualTo(Utils.getPermissionLevel(boardType));
         Allure.step(String.format("Assert if board is %s", boardType));
     }
 
@@ -123,10 +148,14 @@ public class ReadBoardSteps {
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);
         Board board = readBoard(boardId);
-        assertThat(board.getName()).isEqualTo(boardName);
+        String actualBoardName = board.getName();
+        assertThat(actualBoardName)
+                .withFailMessage("Board has incorrect name. Actual name is \"%s\" instead of \"%s\"",
+                        actualBoardName,
+                        boardName)
+                .isEqualTo(boardName);
         Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
     }
-
 
     @Then("{string} can not read board {string}")
     public void can_not_read_board(String personName, String boardName) {
@@ -136,8 +165,10 @@ public class ReadBoardSteps {
         requestHandler.setEndpoint(BoardEndpoint.getBoard(boardId));
         Response response = readRequest.read(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-        Allure.step("Assert if status code is UNAUTHORIZED");
-        assertThat(response.getBody().asString()).contains("unauthorized permission requested");
+        Allure.step("Assert status code is UNAUTHORIZED");
+        String expectedErrorText = "unauthorized permission requested";
+        assertThat(response.getBody().asString()).contains(expectedErrorText);
+        Allure.step(String.format("Assert if error response contains text \"%s\"", expectedErrorText));
     }
 
     private Board readBoard(String id) {
@@ -149,7 +180,7 @@ public class ReadBoardSteps {
     }
 
     @Step("Assert if board called {0} is in workspace {1}")
-    public void assertBoardNameAndWorkspaceName(String boardName, String workspaceName, Board board){
+    public void assertBoardNameAndWorkspaceName(String boardName, String workspaceName, Board board) {
         assertThat(board.getName()).isEqualTo(boardName);
         Allure.step(String.format("Assert if board name is \"%s\"", boardName));
         String workspaceId = context.getWorkspaceId(workspaceName);
@@ -159,8 +190,8 @@ public class ReadBoardSteps {
                 workspaceId));
     }
 
-    @Step("Assert board default params ")
-    public void assertBoardDefaultParams(Board board){
+    @Step("Assert board default params")
+    public void assertBoardDefaultParams(Board board) {
         assertThat(board.getPrefs().getPermissionLevel())
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamPermissionLevel());
         assertThat(board.getPrefs().getVoting())
@@ -173,5 +204,6 @@ public class ReadBoardSteps {
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamSelfJoinPrefs());
         assertThat(board.getPrefs().getCardAging())
                 .isEqualTo(appPropertiesReader.getBoardProperties().getDefaultParamCardAgingPrefs());
+        Allure.step("Assert board default params");
     }
 }

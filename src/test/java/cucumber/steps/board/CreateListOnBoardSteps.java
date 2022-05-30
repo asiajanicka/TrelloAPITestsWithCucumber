@@ -6,6 +6,8 @@ import api.handlers.RequestHandler;
 import cucumber.context.Context;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import model.TrelloList;
@@ -25,8 +27,15 @@ public class CreateListOnBoardSteps {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);
-        TrelloList listOnBoard = createListOnBoard(boardId, listName);
-        assertThat(listOnBoard.getName()).isEqualTo(listName);
+        createListOnBoardSetUp(boardId, listName);
+        TrelloList listOnBoard = createListOnBoard();
+        String actualListName = listOnBoard.getName();
+        assertThat(actualListName)
+                .withFailMessage("Name of created list is \"%s\" instead of \"%s\"",
+                        actualListName,
+                        listName)
+                .isEqualTo(listName);
+        Allure.step(String.format("Assert is list name is \"%s\"", listName));
     }
 
     @When("{string} can not add list {string} on {string}")
@@ -37,17 +46,19 @@ public class CreateListOnBoardSteps {
         createListOnBoardSetUp(boardId, listName);
         Response response = createListRequest.create(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+        Allure.step(String.format("Assert status code %s", HttpStatus.SC_UNAUTHORIZED));
     }
 
-    private void createListOnBoardSetUp(String boardId, String name){
+    private void createListOnBoardSetUp(String boardId, String name) {
         requestHandler.setEndpoint(BoardEndpoint.createListOnBoard(boardId));
         requestHandler.addQueryParam("name", name);
     }
 
-    public TrelloList createListOnBoard(String boardId, String name){
-        createListOnBoardSetUp(boardId, name);
+    @Step("Create new list on board")
+    public TrelloList createListOnBoard() {
         Response response = createListRequest.create(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+        Allure.step(String.format("Assert status code %s", HttpStatus.SC_OK));
         return response.as(TrelloList.class);
     }
 }

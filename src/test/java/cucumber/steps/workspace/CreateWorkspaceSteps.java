@@ -6,6 +6,7 @@ import api.handlers.RequestHandler;
 import cucumber.context.Context;
 import io.cucumber.java.en.Given;
 import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import model.Organization;
@@ -23,15 +24,22 @@ public class CreateWorkspaceSteps {
     public void kate_creates_workspace(String workspaceName) {
         createWorkspaceSetup(workspaceName);
         Organization workspace = createWorkspace();
-        assertThat(workspace.getDisplayName()).isEqualTo(workspaceName);
-        Allure.step("Assert workspace name");
+        String actualWorkspaceName = workspace.getDisplayName();
+        assertThat(actualWorkspaceName)
+                .withFailMessage("Workspace name is %s instead of %s",
+                        actualWorkspaceName,
+                        workspaceName)
+                .isEqualTo(workspaceName);
+        Allure.step(String.format("Assert if workspace name \"%s\"", workspaceName));
         context.addWorkspace(workspaceName, workspace);
+
     }
 
     public void createWorkspaceSetup(String workspaceName){
         requestHandler.setEndpoint(WorkspaceEndpoint.createWorkspace());
         requestHandler.addQueryParam("displayName", workspaceName);
     }
+    @Step("Create workspace")
     public Organization createWorkspace(){
         Response response = createWorkspaceRequest.create(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);

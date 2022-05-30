@@ -9,9 +9,11 @@ import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
-import model.Member;
 import org.apache.http.HttpStatus;
+import org.assertj.core.api.Assertions;
 import propertiesReaders.UsersReader;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -23,14 +25,19 @@ public class AddMemberToBoardSteps {
     private final UsersReader usersReader;
     private final UpdateRequest updateRequest;
 
-    @Then("Kate adds Tom as {string} to board {string}")
-    public void kate_adds_tom_as_to_board(String role, String boardName) {
+    @Then("Kate adds {string} as {string} to board {string}")
+    public void kate_adds_tom_as_to_board(String personName, String role, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticateKate();
         String boardId = context.getBoardId(boardName);
         String memberId = usersReader.getTom().getUserId();
         addMemberToBoardSetUp(boardId, memberId, role);
-        addMember();
+        Response response = addMember();
+        List<String> listOfUserIds = response.jsonPath().getList("members.id");
+        Assertions.assertThat(listOfUserIds)
+                .withFailMessage("List of board members' ids does not contain %s' id", personName)
+                .contains(usersReader.getUser(personName).getUserId());
+        Allure.step(String.format("Assert if %s was added to board", personName));
     }
 
     private void addMemberToBoardSetUp(String boardId, String memberId, String type){
@@ -38,13 +45,11 @@ public class AddMemberToBoardSteps {
         requestHandler.addQueryParam("type", type);
     }
 
-    @Step("Add member to board")
-    private Member addMember(){
+    @Step("Add/Update member to board")
+    private Response addMember(){
         Response response = updateRequest.update(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);
         Allure.step(String.format("Assert status code %s", HttpStatus.SC_OK));
-        return response.as(Member.class);
+        return response;
     }
-
-
 }

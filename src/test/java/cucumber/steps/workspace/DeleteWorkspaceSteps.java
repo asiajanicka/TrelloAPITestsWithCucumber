@@ -17,7 +17,7 @@ public class DeleteWorkspaceSteps {
     private final RequestHandler requestHandler;
     private final DeleteRequest deleteWorkspaceRequest;
 
-    @Step(" Delete workspace")
+    @Step("Delete workspace")
     public void deleteWorkspace(String id){
         requestHandler.setEndpoint(WorkspaceEndpoint.deleteWorkspace(id));
         Response response = deleteWorkspaceRequest.delete(requestHandler);

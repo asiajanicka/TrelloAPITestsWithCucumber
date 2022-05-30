@@ -11,7 +11,6 @@ public class TrelloAuthenticationSteps {
 
     @Given("{string} is authenticated to Trello")
     public void is_authenticated_to_trello(String name) {
-
         switch (name){
             case "Kate":{
                 requestHandler.authenticateKate();

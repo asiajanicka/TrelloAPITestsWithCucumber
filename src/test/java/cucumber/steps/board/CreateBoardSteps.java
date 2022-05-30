@@ -31,8 +31,8 @@ public class CreateBoardSteps {
     private final CreateWorkspaceSteps createWorkspaceSteps;
     private final DeleteWorkspaceSteps deleteWorkspaceSteps;
 
-    @Given("board {string} and workspace {string}")
-    public void board_and_workspace(String boardName, String workspaceName) {
+    @Given("board name {string} and workspace {string}")
+    public void board_name_and_workspace(String boardName, String workspaceName) {
         createBoardSetup(boardName, workspaceName);
     }
 
@@ -119,8 +119,8 @@ public class CreateBoardSteps {
         requestHandler.addQueryParam("desc", desc);
     }
 
-    @Given("board {string} and workspace with {string} id")
-    public void board_and_workspace_with_id(String boardName, String invalidId) {
+    @Given("board name {string} and workspace with {string} id")
+    public void board_name_and_workspace_with_id(String boardName, String invalidId) {
         String workspaceId;
         switch (invalidId) {
             case "invalid": {
@@ -138,20 +138,22 @@ public class CreateBoardSteps {
         requestHandler.addQueryParam("idOrganization", workspaceId);
     }
 
-    @Given("board {string} and id of workspace that was deleted")
-    public void board_and_id_of_workspace_that_was_deleted(String boardName) {
+    @Given("board name {string} and id of workspace that was deleted")
+    public void board_name_and_id_of_workspace_that_was_deleted(String boardName) {
 //        create workspace that will be deleted and get ID
         createWorkspaceSteps.createWorkspaceSetup("Workspace to delete");
+        Allure.step("Create new workspace");
         String workspaceId = createWorkspaceSteps.createWorkspace().getId();
 //        delete the workspace
         deleteWorkspaceSteps.deleteWorkspace(workspaceId);
+        Allure.step("Delete that workspace and use its id");
 //        use the id of previously deleted workspace
         requestHandler.addQueryParam("name", boardName);
         requestHandler.addQueryParam("idOrganization", workspaceId);
     }
 
-    @Given("board {string}")
-    public void board(String boardName) {
+    @Given("board name {string}")
+    public void board_name(String boardName) {
         requestHandler.addQueryParam("name", boardName);
     }
 
@@ -172,44 +174,44 @@ public class CreateBoardSteps {
         } else {
             throw new IllegalArgumentException("Value not recognized");
         }
-
     }
-
 
     @When("Kate creates board {string} with default params")
     public void kate_creates_board_with_default_params(String boardName) {
-        Board board = createBoard();
-        assertThat(board.getName()).isEqualTo(boardName);
-        Allure.step(String.format("Assert if board name is \"%s\"", boardName));
-        context.addBoard(boardName, board);
+        kate_creates_board(boardName);
     }
 
     @When("Kate creates board with name of (.*) length")
     public void kate_creates_board_with_name_of_length() {
         String boardName = context.getBoardNameWithGivenLength();
-        Board board = createBoard();
-        assertThat(board.getName()).isEqualTo(boardName);
-        Allure.step(String.format("Assert if board name is %s", board));
-        context.addBoard(boardName, board);
+        kate_creates_board(boardName);
     }
 
     @When("Kate creates board {string}")
-    public void kate_creates_board(String boardName) {
+    public Board kate_creates_board(String expectedBoardName) {
         requestHandler.setEndpoint(BoardEndpoint.createBoard());
         Board board = createBoard();
-        assertThat(board.getName()).isEqualTo(boardName);
-        Allure.step(String.format("Assert if board name is %s", board));
-        context.addBoard(boardName, board);
+        String actualBoardName = board.getName();
+        assertThat(actualBoardName)
+                .withFailMessage("Board name is \"%s\" instead of \"%s\"",
+                        actualBoardName,
+                        expectedBoardName )
+                .isEqualTo(expectedBoardName);
+        Allure.step(String.format("Assert if board name is \"%s\"", expectedBoardName));
+        context.addBoard(expectedBoardName, board);
+        return board;
     }
 
     @When("Kate creates {string} board {string}")
-    public void kate_creates_board(String boardType, String boardName) {
-        Board board = createBoard();
-        assertThat(board.getName()).isEqualTo(boardName);
-        Allure.step(String.format("Assert if board name is %s", board));
-        context.addBoard(boardName, board);
-        assertThat(board.getPrefs().getPermissionLevel()).isEqualTo(Utils.getPermissionLevel(boardType));
-        Allure.step(String.format("Assert if board is %s", boardType));
+    public void kate_creates_board(String expectedBoardType, String expectedBoardName) {
+        Board board = kate_creates_board(expectedBoardName);
+        String actualPermissionLevel = board.getPrefs().getPermissionLevel();
+        assertThat(actualPermissionLevel)
+                .withFailMessage("Board permission level is \"%s\" instead of \"%s\"",
+                        actualPermissionLevel,
+                        expectedBoardType)
+                .isEqualTo(Utils.getPermissionLevel(expectedBoardType));
+        Allure.step(String.format("Assert if board is %s", expectedBoardType));
     }
 
     @When("Kate tries to create board")
@@ -229,7 +231,6 @@ public class CreateBoardSteps {
         Response response = createBoardRequest.create(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);
         Allure.step(String.format("Assert status code %s", HttpStatus.SC_OK));
-        Board board = response.as(Board.class);
-        return board;
+        return response.as(Board.class);
     }
 }

@@ -6,9 +6,9 @@ import api.handlers.RequestHandler;
 import cucumber.context.Context;
 import io.cucumber.java.en.Given;
 import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
-import model.OrgMember;
 import org.apache.http.HttpStatus;
 import propertiesReaders.UsersReader;
 import utils.users.Utils;
@@ -32,8 +32,10 @@ public class UpdateMemberOfWorkspaceSteps {
         updateMemberSetup(workspaceId, memberId, workspaceRole);
         Response response = updateMember();
         List<String> listOfUserIds = response.jsonPath().getList("members.id");
-        assertThat(listOfUserIds).contains(usersReader.getUser(personName).getUserId());
-        Allure.step(String.format("Assert if %s was added to board", personName));
+        assertThat(listOfUserIds)
+                .withFailMessage("List of workspace members' ids does not contain %s' id", personName)
+                .contains(usersReader.getUser(personName).getUserId());
+        Allure.step(String.format("Assert if %s was added to workspace", personName));
     }
 
     public void updateMemberSetup(String workspaceId, String memberId, String type) {
@@ -41,6 +43,7 @@ public class UpdateMemberOfWorkspaceSteps {
         requestHandler.addQueryParam("type", type);
     }
 
+    @Step("Update/Add member to workspace")
     public Response updateMember() {
         Response response = updateMemberRequest.update(requestHandler);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);

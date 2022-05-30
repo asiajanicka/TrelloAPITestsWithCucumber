@@ -19,5 +19,4 @@ public class WorkspaceEndpoint {
     public static String updateMemberOfOrg(String id, String idMember){
         return String.format(ORGS + "/%s" + MEMBERS + "/%s", id, idMember);
     }
-
 }
