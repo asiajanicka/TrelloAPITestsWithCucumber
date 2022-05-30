@@ -1,10 +1,10 @@
-@wip
 Feature: Create a board with given voting access
 
   Kate the owner should be able to create a new board with given permission (access) level with restricted access for voting on cards.
   Based on:
   - permission level (private / workspace visible / public)
   - voting group preference (only board members / board and workspace members / all users (public))
+
   users like Tom (board member), Lucy (workspace member) and John (public user) can or can not vote on cards on board
 
   Background:
