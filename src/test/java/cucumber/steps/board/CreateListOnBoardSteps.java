@@ -49,6 +49,7 @@ public class CreateListOnBoardSteps {
         Allure.step(String.format("Assert status code %s", HttpStatus.SC_UNAUTHORIZED));
     }
 
+
     private void createListOnBoardSetUp(String boardId, String name) {
         requestHandler.setEndpoint(BoardEndpoint.createListOnBoard(boardId));
         requestHandler.addQueryParam("name", name);

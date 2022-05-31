@@ -178,23 +178,7 @@ public class CreateBoardSteps {
 
     @Given("where {string} can vote on cards")
     public void where_can_vote_on_cards(String votingGroup) {
-        String votingPrefs;
-        switch (votingGroup) {
-            case "only board members": {
-                votingPrefs = "members";
-                break;
-            }
-            case "workspace members": {
-                votingPrefs = "org";
-                break;
-            }
-            case "public users": {
-                votingPrefs = "public";
-                break;
-            }
-            default:
-                throw new IllegalArgumentException("Voting group not recognized");
-        }
+        String votingPrefs = Utils.getVotingLevel(votingGroup);
         requestHandler.addQueryParam("prefs_voting", votingPrefs);
     }
 
@@ -212,6 +196,17 @@ public class CreateBoardSteps {
         } else {
             throw new IllegalArgumentException("Value for voting prefs not recognized");
         }
+    }
+
+    @Given("where {string} can add comments on cards")
+    public void where_can_add_comments_on_cards(String commentingGroup) {
+        String commentPrefs = Utils.getCommentingLevel(commentingGroup);
+        requestHandler.addQueryParam("prefs_comments", commentPrefs);
+    }
+
+    @Given("where commenting on cards is disabled")
+    public void where_commenting_on_cards_is_disabled() {
+        requestHandler.addQueryParam("prefs_comments", "disabled");
     }
 
     @When("Kate creates board {string} with default params")
@@ -270,6 +265,30 @@ public class CreateBoardSteps {
                         expectedVotingLevel)
                 .isEqualTo(expectedVotingLevel);
         Allure.step(String.format("Assert if board voting group is \"%s\"", votingGroup));
+    }
+
+    @When("Kate creates board {string} with commenting access set to {string}")
+    public void kate_creates_board_with_commenting_access_set_to(String expectedBoardName, String commentingGroup) {
+        Board board = kate_creates_board(expectedBoardName);
+        String actualCommentingLevel = board.getPrefs().getComments();
+        String expectedCommentingLevel = Utils.getCommentingLevel(commentingGroup);
+        assertThat(actualCommentingLevel)
+                .withFailMessage("Board commenting group is \"%s\" instead of \"%s\"",
+                        actualCommentingLevel,
+                        expectedCommentingLevel)
+                .isEqualTo(expectedCommentingLevel);
+        Allure.step(String.format("Assert if board commenting group is \"%s\"", commentingGroup));
+    }
+
+    @Given("commenting group set to {string} value")
+    public void commenting_group_set_to_value(String type) {
+        if (type.equalsIgnoreCase("blank")) {
+            requestHandler.addQueryParam("prefs_comments", "");
+        } else if (type.equalsIgnoreCase("invalid")) {
+            requestHandler.addQueryParam("prefs_comments", "invalid");
+        } else {
+            throw new IllegalArgumentException("Value for commenting prefs not recognized");
+        }
     }
 
     private void createBoardSetup(String boardName, String workspaceName) {

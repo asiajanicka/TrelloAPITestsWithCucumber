@@ -186,6 +186,21 @@ public class ReadBoardSteps {
         Allure.step(String.format("Assert if error response contains text \"%s\"", expectedErrorText));
     }
 
+    @Then("Kate sees board {string} in workspace {string} with {string} allowed for commenting")
+    public void kate_sees_board_in_workspace_with_allowed_for_commenting(String boardName,
+                                                                         String workspaceName,
+                                                                         String commentingGroup) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        String actualCommentingLevel = board.getPrefs().getComments();
+        String expectedCommentingLevel = Utils.getCommentingLevel(commentingGroup);
+        assertThat(actualCommentingLevel)
+                .withFailMessage("Board commenting group is \"%s\" instead of \"%s\"",
+                        actualCommentingLevel,
+                        expectedCommentingLevel)
+                .isEqualTo(expectedCommentingLevel);
+        Allure.step(String.format("Assert if board commenting group is \"%s\"", commentingGroup));
+    }
+
     private Board readBoard(String id) {
         requestHandler.setEndpoint(BoardEndpoint.getBoard(id));
         Response response = readRequest.read(requestHandler);

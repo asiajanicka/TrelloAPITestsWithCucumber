@@ -44,9 +44,34 @@ public class Utils {
                 break;
             }
             default:
-                throw new IllegalArgumentException("Illegal value for permission level param for board");
+                throw new IllegalArgumentException("Illegal value for voting prefs param for board");
         }
         return votingLevel;
+    }
+
+    public static String getCommentingLevel(String type) {
+        String commentingLevel;
+        switch (type.strip()) {
+            case "public users": {
+                commentingLevel = "public";
+                break;
+            }
+            case "only board members": {
+                commentingLevel = "members";
+                break;
+            }
+            case "workspace members": {
+                commentingLevel = "org";
+                break;
+            }
+            case "disabled": {
+                commentingLevel = "disabled";
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Illegal value for comment prefs param for board");
+        }
+        return commentingLevel;
     }
 
     public static User getUser(String name) {

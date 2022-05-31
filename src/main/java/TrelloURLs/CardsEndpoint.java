@@ -3,8 +3,7 @@ package TrelloURLs;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import static TrelloURLs.Paths.CARDS;
-import static TrelloURLs.Paths.MEMBERS_VOTED;
+import static TrelloURLs.Paths.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CardsEndpoint {
@@ -15,5 +14,9 @@ public class CardsEndpoint {
 
     public static String addMemberVoteToCard(String cardId){
         return String.format(CARDS + "/%s" + MEMBERS_VOTED, cardId);
+    }
+
+    public static String addNewCommentToCard(String cardId){
+        return String.format(CARDS + "/%s" + ACTIONS + COMMENTS, cardId);
     }
 }
