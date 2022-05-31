@@ -74,6 +74,25 @@ public class Utils {
         return commentingLevel;
     }
 
+    public static String getInviteLevel(String type) {
+        String inviteLevel;
+        switch (type.strip()) {
+            case "admins": {
+                inviteLevel = "admins";
+                break;
+            }
+            case "board members": {
+                inviteLevel = "members";
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Illegal value for invite prefs param for board");
+        }
+        return inviteLevel;
+    }
+
+
+
     public static User getUser(String name) {
         switch (name) {
             case "Kate": {

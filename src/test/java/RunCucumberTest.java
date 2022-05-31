@@ -6,7 +6,8 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         plugin = {"pretty", "io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm"},
         glue = {"cucumber"},
-        features = "src/test/resources/features/withAuth"
+        features = "src/test/resources/features/withAuth",
+        tags = "@wip"
 )
 public class RunCucumberTest {
 }

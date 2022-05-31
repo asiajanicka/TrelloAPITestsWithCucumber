@@ -36,4 +36,8 @@ public class BoardEndpoint {
         return String.format(BOARDS + "/%s" + LISTS, boardId);
     }
 
+    public static String inviteMemberToBoard(String boardId){
+        return String.format(BOARDS + "/%s" + MEMBERS, boardId);
+    }
+
 }

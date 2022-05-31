@@ -205,13 +205,26 @@ Feature: Create a board with basic params
       | blank   |
       | invalid |
 
-#  prefs_voting: blank or invalid
+#  prefs_comments: blank or invalid
   @cleanup @with_workspace
   Scenario Outline: Kate can not create board with <value> value for commenting group who can add comments on cards
     Given board name "MY BOARD" and workspace "WORKSPACE 1"
     And commenting group set to "<value>" value
     When Kate tries to create board
     Then response is "invalid value for prefs_comments" with status code 400
+
+    Examples:
+      | value   |
+      | blank   |
+      | invalid |
+
+#  prefs_invitations: blank or invalid
+  @cleanup @with_workspace
+  Scenario Outline: Kate can not create board with <value> value for user group who can invite others to board
+    Given board name "MY BOARD" and workspace "WORKSPACE 1"
+    And invite group set to "<value>" value
+    When Kate tries to create board
+    Then response is "invalid value for prefs_invitations" with status code 400
 
     Examples:
       | value   |

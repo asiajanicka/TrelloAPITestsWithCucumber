@@ -201,6 +201,22 @@ public class ReadBoardSteps {
         Allure.step(String.format("Assert if board commenting group is \"%s\"", commentingGroup));
     }
 
+    @Then("Kate sees board {string} in workspace {string} with {string} allowed for adding users to board")
+    public void kate_sees_board_in_workspace_with_allowed_for_adding_users_to_board(String boardName,
+                                                                                    String workspaceName,
+                                                                                    String inviteGroup) {
+        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+        String actualInviteLevel = board.getPrefs().getInvitations();
+        String expectedInviteLevel = Utils.getInviteLevel(inviteGroup);
+        assertThat(actualInviteLevel)
+                .withFailMessage("Board invite group is \"%s\" instead of \"%s\"",
+                        actualInviteLevel,
+                        expectedInviteLevel)
+                .isEqualTo(expectedInviteLevel);
+        Allure.step(String.format("Assert if board invite group is \"%s\"", inviteGroup));
+    }
+
+
     private Board readBoard(String id) {
         requestHandler.setEndpoint(BoardEndpoint.getBoard(id));
         Response response = readRequest.read(requestHandler);

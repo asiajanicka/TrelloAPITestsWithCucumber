@@ -280,6 +280,19 @@ public class CreateBoardSteps {
         Allure.step(String.format("Assert if board commenting group is \"%s\"", commentingGroup));
     }
 
+    @When("Kate creates board {string} with invite access set to {string}")
+    public void kate_creates_board_with_invite_access_set_to(String expectedBoardName, String inviteGroup) {
+        Board board = kate_creates_board(expectedBoardName);
+        String actualInviteLevel = board.getPrefs().getInvitations();
+        String expectedInviteLevel = Utils.getInviteLevel(inviteGroup);
+        assertThat(actualInviteLevel )
+                .withFailMessage("Board invite group is \"%s\" instead of \"%s\"",
+                        actualInviteLevel ,
+                        expectedInviteLevel)
+                .isEqualTo(expectedInviteLevel);
+        Allure.step(String.format("Assert if board invite group is \"%s\"", inviteGroup));
+    }
+
     @Given("commenting group set to {string} value")
     public void commenting_group_set_to_value(String type) {
         if (type.equalsIgnoreCase("blank")) {
@@ -289,6 +302,23 @@ public class CreateBoardSteps {
         } else {
             throw new IllegalArgumentException("Value for commenting prefs not recognized");
         }
+    }
+
+    @Given("invite group set to {string} value")
+    public void invite_group_set_to_value(String type) {
+        if (type.equalsIgnoreCase("blank")) {
+            requestHandler.addQueryParam("prefs_invitations", "");
+        } else if (type.equalsIgnoreCase("invalid")) {
+            requestHandler.addQueryParam("prefs_invitations", "invalid");
+        } else {
+            throw new IllegalArgumentException("Value for invitations prefs not recognized");
+        }
+    }
+
+    @Given("where {string} can invite other users to board")
+    public void where_can_invite_other_users_to_board(String inviteGroup) {
+        String invite_prefs = Utils.getInviteLevel(inviteGroup);
+        requestHandler.addQueryParam("prefs_invitations", invite_prefs);
     }
 
     private void createBoardSetup(String boardName, String workspaceName) {
