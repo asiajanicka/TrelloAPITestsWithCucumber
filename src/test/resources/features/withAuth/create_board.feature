@@ -1,3 +1,4 @@
+@wip
 Feature: Create a board with basic params
 
   Kate the owner should be able to create a new board with chosen parameters in the given workspace.
@@ -17,7 +18,7 @@ Feature: Create a board with basic params
   Scenario Outline: Kate can create board with name of <length_value> length
     Given board name of "<length_value>" length and workspace "WORKSPACE 1"
     When Kate creates board with name of "<length_value>" length
-    Then Kate sees board with name of limit length in workspace "WORKSPACE 1"
+    Then Kate sees board with name of limit length
 
     Examples:
       | length_value |
@@ -29,7 +30,7 @@ Feature: Create a board with basic params
   Scenario Outline: Kate can create board with special name <board_name>
     Given board name "<board_name>" and workspace "WORKSPACE 1"
     When Kate creates board "<board_name>"
-    Then Kate sees board "<board_name>" in workspace "WORKSPACE 1"
+    Then Kate sees board "<board_name>"
 
     Examples:
       | board_name   |
@@ -100,7 +101,7 @@ Feature: Create a board with basic params
     Given board name "MY BOARD" and workspace "WORKSPACE 1"
     And Kate wants board without "defaultLabels"
     When Kate creates board "MY BOARD"
-    Then Kate sees board "MY BOARD" without default labels in workspace "WORKSPACE 1"
+    Then Kate sees board "MY BOARD" without default labels
 
 #  defaultLabels: invalid value for defaultLabels / blank defaultLabels
   @cleanup @with_workspace
@@ -121,7 +122,7 @@ Feature: Create a board with basic params
     Given board name "MY BOARD" and workspace "WORKSPACE 1"
     And Kate wants board without "defaultLists"
     When Kate creates board "MY BOARD"
-    Then Kate sees board "MY BOARD" without default lists in workspace "WORKSPACE 1"
+    Then Kate sees board "MY BOARD" without default lists
 
 # defaultLabels: invalid value for defaultLists / blank defaultLists
   @cleanup @with_workspace
@@ -142,7 +143,7 @@ Feature: Create a board with basic params
     Given board name "MY BOARD" and workspace "WORKSPACE 1"
     And Kate wants board with description of "<length>" length
     When Kate creates board "MY BOARD"
-    Then Kate sees board "MY BOARD" with correct description in workspace "WORKSPACE 1"
+    Then Kate sees board "MY BOARD" with correct description
 
     Examples:
       | length |
@@ -230,3 +231,37 @@ Feature: Create a board with basic params
       | value   |
       | blank   |
       | invalid |
+
+#  prefs_background: set to orange
+  @cleanup @with_workspace
+  Scenario: Kate can create board with background different then custom one
+    Given board name "MY BOARD" and workspace "WORKSPACE 1"
+    And Kate wants board with "orange" background
+    When Kate creates board "MY BOARD" with "orange" background
+    Then Kate sees board "MY BOARD" with "orange" background
+
+#  prefs_background: blank or invalid
+  @cleanup @with_workspace
+  Scenario Outline: Kate can not create board with <value> value for background color
+    Given board name "MY BOARD" and workspace "WORKSPACE 1"
+    And background color set to "<value>" value
+    When Kate tries to create board
+    Then response is "invalid value for prefs_background" with status code 400
+
+    Examples:
+      | value   |
+      | blank   |
+      | invalid |
+
+#  amount of board per workspace: max amount of board per workspace
+  @cleanup @with_workspace
+    Scenario: Kate can create max number of boards in given workspace
+    When Kate creates max number of boards in workspace "WORKSPACE 1"
+    Then Kate sees max number of boards in workspace "WORKSPACE 1"
+
+ #  amount of board per workspace: over max amount of board per workspace
+  @cleanup @with_workspace
+  Scenario: Kate can not create more boards in workspace then limit
+    Given Kate creates max number of boards in workspace "WORKSPACE 1"
+    When Kate tries to create board
+  Then response is "Cannot create board as organization is at its board limit" with status code 400

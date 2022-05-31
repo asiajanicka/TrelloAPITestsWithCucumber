@@ -30,6 +30,7 @@ public class CreateBoardSteps {
     private final AppPropertiesReader appPropertiesReader;
     private final CreateWorkspaceSteps createWorkspaceSteps;
     private final DeleteWorkspaceSteps deleteWorkspaceSteps;
+    private final AppPropertiesReader appProperties;
 
     @Given("board name {string} and workspace {string}")
     public void board_name_and_workspace(String boardName, String workspaceName) {
@@ -55,6 +56,7 @@ public class CreateBoardSteps {
             default:
                 throw new IllegalArgumentException("Board name length not recognized");
         }
+        Allure.step(String.format("Board name is \"s\"", boardName));
         context.setBoardNameWithGivenLength(boardName);
         createBoardSetup(boardName, workspaceName);
     }
@@ -115,6 +117,8 @@ public class CreateBoardSteps {
             default:
                 throw new IllegalArgumentException("Description length not recognized");
         }
+        Allure.step(String.format("Board description size is %s", desc.length()));
+        Allure.step(String.format("Board description is \"%s\"", desc));
         context.setBoardDescWithGivenLength(desc);
         requestHandler.addQueryParam("desc", desc);
     }
@@ -319,6 +323,44 @@ public class CreateBoardSteps {
     public void where_can_invite_other_users_to_board(String inviteGroup) {
         String invite_prefs = Utils.getInviteLevel(inviteGroup);
         requestHandler.addQueryParam("prefs_invitations", invite_prefs);
+    }
+
+    @Given("Kate wants board with {string} background")
+    public void kate_wants_board_with_background(String color) {
+        requestHandler.addQueryParam("prefs_background", color);
+    }
+
+    @When("Kate creates board {string} with {string} background")
+    public void kate_creates_board_with_background(String expectedBoardName, String expectedColor) {
+        Board board = kate_creates_board(expectedBoardName);
+        String actualColor = board.getPrefs().getBackground();
+        assertThat(actualColor )
+                .withFailMessage("Board background color is \"%s\" instead of \"%s\"",
+                        actualColor ,
+                        expectedColor)
+                .isEqualTo(expectedColor);
+        Allure.step(String.format("Assert if board background color is \"%s\"", expectedColor));
+    }
+
+    @Given("background color set to {string} value")
+    public void background_color_set_to_value(String type) {
+         if (type.equalsIgnoreCase("blank")) {
+            requestHandler.addQueryParam("prefs_background", "");
+        } else if (type.equalsIgnoreCase("invalid")) {
+            requestHandler.addQueryParam("prefs_background", "invalid");
+        } else {
+            throw new IllegalArgumentException("Value for background prefs not recognized");
+        }
+    }
+
+    @When("Kate creates max number of boards in workspace {string}")
+    public void kate_creates_max_number_of_boards_in_workspace(String workspaceName) {
+        for (int i=0; i<appProperties.getBoardProperties().getLimitPerWorkspace(); i++) {
+            String boardName = String.format("MY BOARD %d" ,i);
+            createBoardSetup(boardName, workspaceName);
+            Board board = createBoard();
+            context.addBoard(boardName, board);
+        }
     }
 
     private void createBoardSetup(String boardName, String workspaceName) {

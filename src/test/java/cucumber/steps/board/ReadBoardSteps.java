@@ -39,19 +39,25 @@ public class ReadBoardSteps {
         assertBoardDefaultParams(board);
     }
 
-    @Then("Kate sees board with name of limit length in workspace {string}")
-    public void kate_sees_board_with_name_of_length_in_workspace(String workspaceName) {
+    @Then("Kate sees board with name of limit length")
+    public void kate_sees_board_with_name_of_length() {
         String boardName = context.getBoardNameWithGivenLength();
-        kate_sees_board_in_workspace(boardName, workspaceName);
+        kate_sees_board(boardName);
     }
 
-    @Then("Kate sees board {string} in workspace {string}")
-    public Board kate_sees_board_in_workspace(String boardName, String workspaceName) {
+    @Then("Kate sees board {string}")
+    public Board kate_sees_board(String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticateKate();
         String boardId = context.getBoardId(boardName);
         Board board = readBoard(boardId);
-        assertBoardNameAndWorkspaceName(boardName, workspaceName, board);
+        String actualBoardName = board.getName();
+        assertThat(actualBoardName)
+                .withFailMessage("Board has incorrect name. Actual name is \"%s\", when " +
+                                "it should be \"%s\"",
+                        actualBoardName,
+                        boardName).isEqualTo(boardName);
+        Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
         return board;
     }
 
@@ -77,9 +83,9 @@ public class ReadBoardSteps {
         assertBoardNameAndWorkspaceName(boardName, workspaceName, board_2);
     }
 
-    @Then("Kate sees board {string} without default labels in workspace {string}")
-    public void kate_sees_board_without_default_labels_in_workspace(String boardName, String workspaceName) {
-        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+    @Then("Kate sees board {string} without default labels")
+    public void kate_sees_board_without_default_labels(String boardName) {
+        Board board = kate_sees_board(boardName);
         List<Label> labelsList = getLabelsOnBoardSteps.getLabels(board.getId());
         Allure.step("Get labels on board");
         assertThat(labelsList)
@@ -89,9 +95,9 @@ public class ReadBoardSteps {
         Allure.step("Assert if label list is empty");
     }
 
-    @Then("Kate sees board {string} without default lists in workspace {string}")
-    public void kate_sees_board_without_default_lists_in_workspace(String boardName, String workspaceName) {
-        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+    @Then("Kate sees board {string} without default lists")
+    public void kate_sees_board_without_default_lists(String boardName) {
+        Board board = kate_sees_board(boardName);
         List<TrelloList> trelloListsList = getListsOnBoardSteps.getLists(board.getId());
         Allure.step("Get lists on board");
         assertThat(trelloListsList)
@@ -101,9 +107,9 @@ public class ReadBoardSteps {
         Allure.step("Assert if list of Trello lists is empty");
     }
 
-    @Then("Kate sees board {string} with correct description in workspace {string}")
-    public void kate_sees_board_with_correct_description_in_workspace(String boardName, String workspaceName) {
-        Board board = kate_sees_board_in_workspace(boardName, workspaceName);
+    @Then("Kate sees board {string} with correct description")
+    public void kate_sees_board_with_correct_description(String boardName) {
+        Board board = kate_sees_board(boardName);
         String boardDesc = context.getBoardDescWithGivenLength();
         String actualBoardDesc = board.getDesc();
         assertThat(actualBoardDesc)
@@ -113,21 +119,6 @@ public class ReadBoardSteps {
                         boardDesc)
                 .isEqualTo(boardDesc);
         Allure.step(String.format("Assert is board's description is \"%s\"", boardDesc));
-    }
-
-    @Then("Kate sees board {string}")
-    public void kate_sees_board(String boardName) {
-        requestHandler.clearAll();
-        requestHandler.authenticateKate();
-        String boardId = context.getBoardId(boardName);
-        Board board = readBoard(boardId);
-        String actualBoardName = board.getName();
-        assertThat(board.getName())
-                .withFailMessage("Board has incorrect name. Actual name is \"%s\", when " +
-                        "it should be \"%s\"",
-                        actualBoardName,
-                        boardName).isEqualTo(boardName);
-        Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
     }
 
     @Then("Kate sees {string} board {string} in workspace {string}")
@@ -155,6 +146,18 @@ public class ReadBoardSteps {
                         expectedVotingLevel)
                 .isEqualTo(expectedVotingLevel);
         Allure.step(String.format("Assert if board voting group is \"%s\"", votingGroup));
+    }
+
+    @Then("Kate sees board {string} with {string} background")
+    public void kate_sees_board_with_background(String expectedBoardName, String expectedColor) {
+        Board board = kate_sees_board(expectedBoardName);
+        String actualColor = board.getPrefs().getBackground();
+        assertThat(actualColor )
+                .withFailMessage("Board background color is \"%s\" instead of \"%s\"",
+                        actualColor ,
+                        expectedColor)
+                .isEqualTo(expectedColor);
+        Allure.step(String.format("Assert if board background color is \"%s\"", expectedColor));
     }
 
     @Then("{string} reads board {string}")
@@ -203,8 +206,7 @@ public class ReadBoardSteps {
 
     @Then("Kate sees board {string} in workspace {string} with {string} allowed for adding users to board")
     public void kate_sees_board_in_workspace_with_allowed_for_adding_users_to_board(String boardName,
-                                                                                    String workspaceName,
-                                                                                    String inviteGroup) {
+                                                                                    String workspaceName, String inviteGroup) {
         Board board = kate_sees_board_in_workspace(boardName, workspaceName);
         String actualInviteLevel = board.getPrefs().getInvitations();
         String expectedInviteLevel = Utils.getInviteLevel(inviteGroup);
@@ -215,7 +217,6 @@ public class ReadBoardSteps {
                 .isEqualTo(expectedInviteLevel);
         Allure.step(String.format("Assert if board invite group is \"%s\"", inviteGroup));
     }
-
 
     private Board readBoard(String id) {
         requestHandler.setEndpoint(BoardEndpoint.getBoard(id));
@@ -232,9 +233,15 @@ public class ReadBoardSteps {
         String workspaceId = context.getWorkspaceId(workspaceName);
         assertThat(board.getIdOrganization()).isEqualTo(workspaceId);
         Allure.step(String.format("Assert if board is created in workspace \"%s\"",
-                workspaceName,
-                workspaceId));
+                workspaceName));
     }
+
+    public Board kate_sees_board_in_workspace(String boardName, String workspaceName){
+        Board board = kate_sees_board(boardName);
+        assertBoardNameAndWorkspaceName(boardName, workspaceName, board);
+        return board;
+    }
+
 
     @Step("Assert board default params")
     public void assertBoardDefaultParams(Board board) {
