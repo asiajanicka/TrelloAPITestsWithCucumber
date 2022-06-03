@@ -22,6 +22,16 @@ public class Hooks {
     private final DeleteWorkspaceSteps deleteWorkspaceSteps;
     private final DeleteBoardSteps deleteBoardSteps;
 
+    @Before(value = "@with_workspace")
+    public void beforeScenario(){
+        requestHandler.authenticate(Kate);
+        String workspaceName = "WORKSPACE 1";
+        createWorkspaceSteps.createWorkspaceSetup(workspaceName);
+        Allure.step(String.format("Kate creates new workspace \"%s\"", workspaceName));
+        Organization workspace = createWorkspaceSteps.createWorkspace();
+        context.addWorkspace(workspaceName, workspace);
+        requestHandler.clearAll();
+    }
 
     @After(value = "@cleanup")
     public void afterScenario(){
@@ -35,16 +45,5 @@ public class Hooks {
             Allure.step(String.format("Kate deletes workspace \"%s\"", workspace.getDisplayName()));
             deleteWorkspaceSteps.deleteWorkspace(workspace.getId());
         });
-    }
-
-    @Before(value = "@with_workspace")
-    public void beforeScenario(){
-        requestHandler.authenticate(Kate);
-        String workspaceName = "WORKSPACE 1";
-        createWorkspaceSteps.createWorkspaceSetup(workspaceName);
-        Allure.step(String.format("Kate creates new workspace \"%s\"", workspaceName));
-        Organization workspace = createWorkspaceSteps.createWorkspace();
-        context.addWorkspace(workspaceName, workspace);
-        requestHandler.clearAll();
     }
 }
