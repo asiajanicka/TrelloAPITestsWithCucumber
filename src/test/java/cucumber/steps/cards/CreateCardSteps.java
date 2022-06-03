@@ -12,6 +12,7 @@ import model.Card;
 import org.apache.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static utils.UserName.Kate;
 
 @RequiredArgsConstructor
 public class CreateCardSteps {
@@ -22,7 +23,7 @@ public class CreateCardSteps {
     @When("Kate adds card {string} to list {string}")
     public void kate_adds_card_to_list(String cardName, String listName) {
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         String trelloListId = context.getTrelloListId(listName);
         createCardSetup(cardName, trelloListId);
         Card card = createCard();

@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static utils.UserName.Kate;
 
 @RequiredArgsConstructor
 public class GetBoardsInWorkspaceSteps {
@@ -28,7 +29,7 @@ public class GetBoardsInWorkspaceSteps {
     @Then("Kate sees max number of boards in workspace {string}")
     public void kate_sees_max_number_of_boards_in_workspace(String workspaceName) {
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         List<Board> boards = getBoards(workspaceName);
         int maxNumberOfBoardsInWorkspace = appProperties.getBoardProperties().getLimitPerWorkspace();
         assertThat(boards.size())
@@ -47,5 +48,4 @@ public class GetBoardsInWorkspaceSteps {
         Allure.step(String.format("Assert if status code is %s", HttpStatus.SC_OK));
         return Arrays.asList(response.as(Board[].class));
     }
-
 }

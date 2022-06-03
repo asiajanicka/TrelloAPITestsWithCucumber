@@ -11,6 +11,8 @@ import io.qameta.allure.Allure;
 import lombok.RequiredArgsConstructor;
 import model.Organization;
 
+import static utils.UserName.Kate;
+
 @RequiredArgsConstructor
 public class Hooks {
 
@@ -24,7 +26,7 @@ public class Hooks {
     @After(value = "@cleanup")
     public void afterScenario(){
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         context.getBoards().values().forEach(board-> {
             Allure.step(String.format("Kate deletes board \"%s\"", board.getName()));
             deleteBoardSteps.deleteBoard(board.getId());
@@ -37,7 +39,7 @@ public class Hooks {
 
     @Before(value = "@with_workspace")
     public void beforeScenario(){
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         String workspaceName = "WORKSPACE 1";
         createWorkspaceSteps.createWorkspaceSetup(workspaceName);
         Allure.step(String.format("Kate creates new workspace \"%s\"", workspaceName));

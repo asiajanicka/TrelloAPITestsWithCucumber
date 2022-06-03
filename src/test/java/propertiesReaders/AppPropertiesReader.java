@@ -1,7 +1,7 @@
 package propertiesReaders;
 
 import groovy.lang.Singleton;
-import utils.users.BoardProperties;
+import utils.BoardProperties;
 
 @Singleton
 public class AppPropertiesReader extends PropertiesLoader{

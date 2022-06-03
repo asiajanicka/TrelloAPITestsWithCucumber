@@ -8,7 +8,7 @@ Feature: Create a board with given voting access
   users like Tom (board member), Lucy (workspace member) and John (public user) can or can not vote on cards on board
 
   Background:
-    Given "Kate" is authenticated to Trello
+    Given Kate is authenticated to Trello
 
   @cleanup @with_workspace
   Scenario Outline: Kate the owner can create a <permission_level> board where <voting_group> can vote on cards
@@ -50,10 +50,10 @@ Feature: Create a board with given voting access
     Given Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "<voting_group>" can vote on cards
     When Kate creates board "MY BOARD" with voting set to "<voting_group>"
-    And Kate adds "Tom" as "admin" to board "MY BOARD"
+    And Kate adds Tom as "admin" to board "MY BOARD"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Tom" votes on card "design new UI"
+    Then Tom votes on card "design new UI"
 
     Examples:
       | permission_level  | voting_group       |
@@ -69,20 +69,20 @@ Feature: Create a board with given voting access
     Given Kate wants "private" board "MY BOARD" in "WORKSPACE 1"
     And where voting on cards is disabled
     When Kate creates board "MY BOARD" with voting set to "disabled"
-    And Kate adds "Tom" as "admin" to board "MY BOARD"
+    And Kate adds Tom as "admin" to board "MY BOARD"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Tom" can not vote on card "design new UI"
+    Then Tom can not vote on card "design new UI"
 
   @cleanup @with_workspace
   Scenario Outline: Lucy the workspace member can vote on cards in <permission_level> board with "<voting_group>" voting
-    Given Kate adds "Lucy" as "normal" to workspace "WORKSPACE 1"
+    Given Kate adds Lucy as "normal" to workspace "WORKSPACE 1"
     And Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "<voting_group>" can vote on cards
     When Kate creates board "MY BOARD" with voting set to "<voting_group>"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Lucy" votes on card "design new UI"
+    Then Lucy votes on card "design new UI"
 
     Examples:
       | permission_level  | voting_group      |
@@ -92,13 +92,13 @@ Feature: Create a board with given voting access
 
   @cleanup @with_workspace
   Scenario Outline: Lucy the workspace member can not vote on cards in <permission_level> board with "only board members" voting
-    Given Kate adds "Lucy" as "normal" to workspace "WORKSPACE 1"
+    Given Kate adds Lucy as "normal" to workspace "WORKSPACE 1"
     And Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "only board members" can vote on cards
     When Kate creates board "MY BOARD" with voting set to "only board members"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Lucy" can not vote on card "design new UI"
+    Then Lucy can not vote on card "design new UI"
 
     Examples:
       | permission_level  |
@@ -107,13 +107,13 @@ Feature: Create a board with given voting access
 
   @cleanup @with_workspace
   Scenario: Lucy the workspace member can not vote on cards in workspace visible board with "disabled" voting
-    Given Kate adds "Lucy" as "normal" to workspace "WORKSPACE 1"
+    Given Kate adds Lucy as "normal" to workspace "WORKSPACE 1"
     And Kate wants "workspace visible" board "MY BOARD" in "WORKSPACE 1"
     And where voting on cards is disabled
     When Kate creates board "MY BOARD" with voting set to "disabled"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Lucy" can not vote on card "design new UI"
+    Then Lucy can not vote on card "design new UI"
 
   @cleanup @with_workspace
   Scenario: John the public user can vote on cards in public board with "public users" voting
@@ -122,7 +122,7 @@ Feature: Create a board with given voting access
     When Kate creates board "MY BOARD" with voting set to "public users"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "John" votes on card "design new UI"
+    Then John votes on card "design new UI"
 
   @cleanup @with_workspace
   Scenario Outline: John the public user can not vote on cards in public board with "<voting_group>" voting
@@ -131,7 +131,7 @@ Feature: Create a board with given voting access
     When Kate creates board "MY BOARD" with voting set to "<voting_group>"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "John" can not vote on card "design new UI"
+    Then John can not vote on card "design new UI"
 
     Examples:
       | voting_group       |
@@ -145,5 +145,5 @@ Feature: Create a board with given voting access
     When Kate creates board "MY BOARD" with voting set to "disabled"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "John" can not vote on card "design new UI"
+    Then John can not vote on card "design new UI"
 

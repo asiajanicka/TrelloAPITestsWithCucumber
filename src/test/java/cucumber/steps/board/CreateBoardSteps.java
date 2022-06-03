@@ -15,7 +15,8 @@ import lombok.RequiredArgsConstructor;
 import model.Board;
 import org.apache.http.HttpStatus;
 import propertiesReaders.AppPropertiesReader;
-import utils.users.Utils;
+import utils.UserName;
+import utils.Utils;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -164,7 +165,7 @@ public class CreateBoardSteps {
     @Given("Kate wants {string} board {string} in {string}")
     public void kate_wants_board_in(String boardType, String boardName, String workspaceName) {
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(UserName.Kate);
         createBoardSetup(boardName, workspaceName);
         requestHandler.addQueryParam("prefs_permissionLevel", Utils.getPermissionLevel(boardType));
     }

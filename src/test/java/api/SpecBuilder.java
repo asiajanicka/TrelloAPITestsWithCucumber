@@ -8,8 +8,6 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
-import java.util.Map;
-
 public class SpecBuilder {
 
     public static RequestSpecification getRequestSpec(RequestHandler requestHandler){

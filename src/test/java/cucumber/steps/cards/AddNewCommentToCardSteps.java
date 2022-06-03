@@ -10,6 +10,7 @@ import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import model.Action;
 import org.apache.http.HttpStatus;
+import utils.UserName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,8 +21,8 @@ public class AddNewCommentToCardSteps {
     private final Context context;
     private final CreateRequest createComment;
 
-    @Then("{string} adds comment {string} on card {string}")
-    public void adds_comment_on_card(String personName, String commentText, String cardName) {
+    @Then("{name} adds comment {string} on card {string}")
+    public void adds_comment_on_card(UserName personName, String commentText, String cardName) {
        requestHandler.clearAll();
        requestHandler.authenticate(personName);
        String cardId = context.getCardId(cardName);
@@ -29,8 +30,8 @@ public class AddNewCommentToCardSteps {
        addNewCommentToCard();
     }
 
-    @Then("{string} can not add comment {string} on card {string}")
-    public void can_not_add_comment_on_card(String personName, String commentText, String cardName) {
+    @Then("{name} can not add comment {string} on card {string}")
+    public void can_not_add_comment_on_card(UserName personName, String commentText, String cardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String cardId = context.getCardId(cardName);

@@ -12,6 +12,7 @@ import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import model.TrelloList;
 import org.apache.http.HttpStatus;
+import utils.UserName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,8 +23,8 @@ public class CreateListOnBoardSteps {
     private final CreateRequest createListRequest;
     private final Context context;
 
-    @Then("{string} adds list {string} on {string}")
-    public void adds_list_on(String personName, String listName, String boardName) {
+    @Then("{name} adds list {string} on {string}")
+    public void adds_list_on(UserName personName, String listName, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);
@@ -38,8 +39,8 @@ public class CreateListOnBoardSteps {
         Allure.step(String.format("Assert is list name is \"%s\"", listName));
     }
 
-    @When("{string} can not add list {string} on {string}")
-    public void can_not_add_list_on(String personName, String listName, String boardName) {
+    @When("{name} can not add list {string} on {string}")
+    public void can_not_add_list_on(UserName personName, String listName, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);

@@ -1,7 +1,8 @@
 package propertiesReaders;
 
 import groovy.lang.Singleton;
-import utils.users.User;
+import utils.User;
+import utils.UserName;
 
 @Singleton
 public class UsersReader extends PropertiesLoader {
@@ -10,15 +11,18 @@ public class UsersReader extends PropertiesLoader {
         super("properties/users.properties");
     }
 
-    public User getUser(String name){
+    public User getUser(UserName name){
         switch(name){
-            case "Tom":{
+            case Kate:{
+                return this.getKate();
+            }
+            case Tom:{
                 return this.getTom();
             }
-            case "Lucy":{
+            case Lucy:{
                 return this.getLucy();
             }
-            case "John":
+            case John:
                 return this.getJohn();
             default: throw new IllegalArgumentException("Person's name not recognized");
         }

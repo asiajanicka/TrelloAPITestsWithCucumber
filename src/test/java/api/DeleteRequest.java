@@ -1,6 +1,5 @@
 package api;
 
-import api.SpecBuilder;
 import api.handlers.RequestHandler;
 import io.restassured.response.Response;
 

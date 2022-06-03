@@ -10,6 +10,7 @@ import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpStatus;
 import propertiesReaders.UsersReader;
+import utils.UserName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,8 +21,8 @@ public class AddMemberVoteToCardSteps {
     private final Context context;
     private final UsersReader users;
 
-    @Then("{string} votes on card {string}")
-    public void votes_on_card(String personName, String cardName) {
+    @Then("{name} votes on card {string}")
+    public void votes_on_card(UserName personName, String cardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String cardId = context.getCardId(cardName);
@@ -30,8 +31,8 @@ public class AddMemberVoteToCardSteps {
         addMemberVote();
     }
 
-    @Then("{string} can not vote on card {string}")
-    public void can_not_vote_on_card(String personName, String cardName) {
+    @Then("{name} can not vote on card {string}")
+    public void can_not_vote_on_card(UserName personName, String cardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String cardId = context.getCardId(cardName);

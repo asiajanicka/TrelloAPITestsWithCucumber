@@ -10,7 +10,7 @@ Feature: Create a board with given commenting on cards preferences
   to cards on board
 
   Background:
-    Given "Kate" is authenticated to Trello
+    Given Kate is authenticated to Trello
 
   @cleanup @with_workspace
   Scenario Outline: Kate the owner can create a <permission_level> board where <comment_group> can add comments on cards
@@ -52,10 +52,10 @@ Feature: Create a board with given commenting on cards preferences
     Given Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "<comment_group>" can add comments on cards
     When Kate creates board "MY BOARD" with commenting access set to "<comment_group>"
-    And Kate adds "Tom" as "admin" to board "MY BOARD"
+    And Kate adds Tom as "admin" to board "MY BOARD"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Tom" adds comment "I'll do it" on card "design new UI"
+    Then Tom adds comment "I'll do it" on card "design new UI"
 
     Examples:
       | permission_level  | comment_group       |
@@ -71,20 +71,20 @@ Feature: Create a board with given commenting on cards preferences
     Given Kate wants "private" board "MY BOARD" in "WORKSPACE 1"
     And where commenting on cards is disabled
     When Kate creates board "MY BOARD" with commenting access set to "disabled"
-    And Kate adds "Tom" as "admin" to board "MY BOARD"
+    And Kate adds Tom as "admin" to board "MY BOARD"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Tom" can not add comment "I'll do it" on card "design new UI"
+    Then Tom can not add comment "I'll do it" on card "design new UI"
 
   @cleanup @with_workspace
   Scenario Outline: Lucy the workspace member can comment on cards in <permission_level> board (where "<comment_group>" are allowed for commenting)
-    Given Kate adds "Lucy" as "normal" to workspace "WORKSPACE 1"
+    Given Kate adds Lucy as "normal" to workspace "WORKSPACE 1"
     And Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "<comment_group>" can add comments on cards
     When Kate creates board "MY BOARD" with commenting access set to "<comment_group>"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Lucy" adds comment "I'll do it" on card "design new UI"
+    Then Lucy adds comment "I'll do it" on card "design new UI"
 
     Examples:
       | permission_level  | comment_group      |
@@ -94,13 +94,13 @@ Feature: Create a board with given commenting on cards preferences
 
   @cleanup @with_workspace
   Scenario Outline: Lucy the workspace member can not comment on cards in <permission_level> board (where "only board members" are allowed for commenting)
-    Given Kate adds "Lucy" as "normal" to workspace "WORKSPACE 1"
+    Given Kate adds Lucy as "normal" to workspace "WORKSPACE 1"
     And Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "only board members" can add comments on cards
     When Kate creates board "MY BOARD" with commenting access set to "only board members"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Lucy" can not add comment "I'll do it" on card "design new UI"
+    Then Lucy can not add comment "I'll do it" on card "design new UI"
 
     Examples:
       | permission_level  |
@@ -109,13 +109,13 @@ Feature: Create a board with given commenting on cards preferences
 
   @cleanup @with_workspace
   Scenario: Lucy the workspace member can not comment on cards in workspace visible board with "disabled" commenting
-    Given Kate adds "Lucy" as "normal" to workspace "WORKSPACE 1"
+    Given Kate adds Lucy as "normal" to workspace "WORKSPACE 1"
     And Kate wants "workspace visible" board "MY BOARD" in "WORKSPACE 1"
     And where commenting on cards is disabled
     When Kate creates board "MY BOARD" with commenting access set to "disabled"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "Lucy" can not add comment "I'll do it" on card "design new UI"
+    Then Lucy can not add comment "I'll do it" on card "design new UI"
 
   @cleanup @with_workspace
   Scenario: John the public user can comment on cards in public board (where "public users" are allowed for commenting)
@@ -124,7 +124,7 @@ Feature: Create a board with given commenting on cards preferences
     When Kate creates board "MY BOARD" with commenting access set to "public users"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "John" adds comment "I'll do it" on card "design new UI"
+    Then John adds comment "I'll do it" on card "design new UI"
 
   @cleanup @with_workspace
   Scenario Outline: John the public user can not comment on cards in public board (where "<comment_group>" are allowed for commenting)
@@ -133,7 +133,7 @@ Feature: Create a board with given commenting on cards preferences
     When Kate creates board "MY BOARD" with commenting access set to "<comment_group>"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "John" can not add comment "I'll do it" on card "design new UI"
+    Then John can not add comment "I'll do it" on card "design new UI"
 
     Examples:
       | comment_group       |
@@ -147,4 +147,4 @@ Feature: Create a board with given commenting on cards preferences
     When Kate creates board "MY BOARD" with commenting access set to "disabled"
     And Kate sees default list "To Do" on board "MY BOARD"
     And Kate adds card "design new UI" to list "To Do"
-    Then "John" can not add comment "I'll do it" on card "design new UI"
+    Then John can not add comment "I'll do it" on card "design new UI"

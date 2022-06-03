@@ -1,10 +1,9 @@
-@wip
 Feature: Create a board with basic params
 
   Kate the owner should be able to create a new board with chosen parameters in the given workspace.
 
   Background: when Kate is authenticated
-    Given "Kate" is authenticated to Trello
+    Given Kate is authenticated to Trello
 
 #  name, workspace id, default params
   @cleanup @with_workspace

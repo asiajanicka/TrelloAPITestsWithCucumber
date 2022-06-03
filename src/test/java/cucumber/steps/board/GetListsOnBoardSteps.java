@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static utils.UserName.Kate;
 
 @RequiredArgsConstructor
 public class GetListsOnBoardSteps {
@@ -26,7 +27,7 @@ public class GetListsOnBoardSteps {
     @When("Kate sees default list {string} on board {string}")
     public void kate_sees_default_list_on_board(String listName, String boardName) {
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         String boardId = context.getBoardId(boardName);
         List<TrelloList> listsOnBoard = getLists(boardId);
         assertThat(listsOnBoard).extracting(trelloList -> trelloList.getName())

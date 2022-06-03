@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import propertiesReaders.UsersReader;
+import utils.User;
+import utils.UserName;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,40 +37,9 @@ public class RequestHandler {
         pathParams.clear();
     }
 
-    public void authenticateKate(){
-        this.addQueryParam("key", usersReader.getKate().getApiKey());
-        this.addQueryParam("token", usersReader.getKate().getToken());
-    }
-
-    public void authenticateTom(){
-        this.addQueryParam("key", usersReader.getTom().getApiKey());
-        this.addQueryParam("token", usersReader.getTom().getToken());
-    }
-
-    public void authenticateLucy(){
-        this.addQueryParam("key", usersReader.getLucy().getApiKey());
-        this.addQueryParam("token", usersReader.getLucy().getToken());
-    }
-
-    public void authenticateJohn(){
-        this.addQueryParam("key", usersReader.getJohn().getApiKey());
-        this.addQueryParam("token", usersReader.getJohn().getToken());
-    }
-
-    public void authenticate(String name){
-        switch(name){
-            case "Tom":{
-                this.authenticateTom();
-                break;
-            }
-            case "Lucy":{
-                this.authenticateLucy();
-                break;
-            }
-            case "John":
-                this.authenticateJohn();
-                break;
-            default: throw new IllegalArgumentException("Person's name not recognized");
-        }
+    public void authenticate(UserName name) {
+        User u = usersReader.getUser(name);
+        this.addQueryParam("key", u.getApiKey());
+        this.addQueryParam("token", u.getToken());
     }
 }

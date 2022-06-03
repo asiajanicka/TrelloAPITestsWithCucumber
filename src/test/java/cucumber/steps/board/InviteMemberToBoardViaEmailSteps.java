@@ -10,6 +10,7 @@ import io.restassured.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpStatus;
 import propertiesReaders.UsersReader;
+import utils.UserName;
 
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class InviteMemberToBoardViaEmailSteps {
     private final Context context;
     private final UsersReader users;
 
-    @Then("{string} can not invite {string} to board {string} via email")
-    public void can_not_invite_to_board_via_email(String personName, String personNameToBeInvited, String boardName) {
+    @Then("{name} can not invite {name} to board {string} via email")
+    public void can_not_invite_to_board_via_email(UserName personName, UserName personNameToBeInvited, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);
@@ -36,8 +37,8 @@ public class InviteMemberToBoardViaEmailSteps {
         Allure.step(String.format("Assert if status code is %s", HttpStatus.SC_UNAUTHORIZED));
     }
 
-    @Then("{string} invites {string} to board {string} via email")
-    public void invites_to_board_via_email(String personName, String personNameToBeInvited, String boardName) {
+    @Then("{name} invites {name} to board {string} via email")
+    public void invites_to_board_via_email(UserName personName, UserName personNameToBeInvited, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);

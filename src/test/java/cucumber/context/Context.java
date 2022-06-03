@@ -23,13 +23,13 @@ public class Context {
     private String boardDescWithGivenLength;
 
 
-
     public void addBoard(String name, Board board) {
         boards.put(name, board);
     }
 
     public Board getBoard(String name) {
-        return boards.get(name);}
+        return boards.get(name);
+    }
 
     public String getBoardId(String name) {
         return getBoard(name).getId();
@@ -67,5 +67,4 @@ public class Context {
     public String getCardId(String name) {
         return getCard(name).getId();
     }
-
 }

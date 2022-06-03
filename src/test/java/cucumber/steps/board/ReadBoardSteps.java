@@ -15,11 +15,13 @@ import model.Label;
 import model.TrelloList;
 import org.apache.http.HttpStatus;
 import propertiesReaders.AppPropertiesReader;
-import utils.users.Utils;
+import utils.UserName;
+import utils.Utils;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static utils.UserName.Kate;
 
 @RequiredArgsConstructor
 public class ReadBoardSteps {
@@ -48,7 +50,7 @@ public class ReadBoardSteps {
     @Then("Kate sees board {string}")
     public Board kate_sees_board(String boardName) {
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         String boardId = context.getBoardId(boardName);
         Board board = readBoard(boardId);
         String actualBoardName = board.getName();
@@ -72,7 +74,7 @@ public class ReadBoardSteps {
     @Then("Kate sees two boards with name {string} in workspace {string}")
     public void kate_sees_two_boards_with_name_in_workspace(String boardName, String workspaceName) {
         requestHandler.clearAll();
-        requestHandler.authenticateKate();
+        requestHandler.authenticate(Kate);
         String board_1_Id = context.getBoardId(boardName);
         Board board_1 = readBoard(board_1_Id);
         Allure.step(String.format("Kate reads first board \"%s\"", boardName));
@@ -160,8 +162,8 @@ public class ReadBoardSteps {
         Allure.step(String.format("Assert if board background color is \"%s\"", expectedColor));
     }
 
-    @Then("{string} reads board {string}")
-    public void reads_board(String personName, String boardName) {
+    @Then("{name} reads board {string}")
+    public void reads_board(UserName personName, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);
@@ -175,8 +177,8 @@ public class ReadBoardSteps {
         Allure.step(String.format("Assert if board's name is \"%s\"", boardName));
     }
 
-    @Then("{string} can not read board {string}")
-    public void can_not_read_board(String personName, String boardName) {
+    @Then("{name} can not read board {string}")
+    public void can_not_read_board(UserName personName, String boardName) {
         requestHandler.clearAll();
         requestHandler.authenticate(personName);
         String boardId = context.getBoardId(boardName);
