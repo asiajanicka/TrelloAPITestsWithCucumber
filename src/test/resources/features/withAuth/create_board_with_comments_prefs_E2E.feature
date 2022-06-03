@@ -48,7 +48,7 @@ Feature: Create a board with given commenting on cards preferences
       | workspace visible |
 
   @cleanup @with_workspace
-  Scenario Outline: Tom the board member can comment on cards in <permission_level> board (where "<commenting_group>" are allowed for commenting)
+  Scenario Outline: Tom the board member can comment on cards in <permission_level> board (where "<comment_group>" are allowed for commenting)
     Given Kate wants "<permission_level>" board "MY BOARD" in "WORKSPACE 1"
     And where "<comment_group>" can add comments on cards
     When Kate creates board "MY BOARD" with commenting access set to "<comment_group>"

@@ -52,18 +52,31 @@ The project contains API tests in Java for web application Trello.
 *(Determines what types of members can invite users to join the board)* 
   - **Defect found**:
     - Preconditions:
-      1) public or workspace visible board
-      2) invitations prefs set to only board members  
+      1) boards with all permission levels
+      2) invitations prefs set to any of only board members or admins
     - Steps:
-      1) workspace member who isn't a board members tries to invite other user to the board  
+      1) the account owner (Kate) adds user (Tom) to board as admin/board member
+      2) Tom tries to invite other user to board
     - Expected result
-      1) workspace member can not invite other user  
+      1) New user is added to board
+      2) Status code 200
+      3) Id of new board member is in board members list returned in response 
+    - Actual result
+      1) New user is added to board  
+      2) Status code 200  
+      3) Id of new board member is not added to board members list returned in response
+  - **Defect found**:
+    - Preconditions:
+      1) public or workspace visible board
+      2) invitations prefs set to only board members
+    - Steps:
+      1) workspace member who isn't a board members tries to invite other user to the board
+    - Expected result
+      1) workspace member can not invite other user
     - Actual result
       2) workspace member invites other user to board
 
 - Create max number of boards limited for workspace tests
-
-Additionally, tests showed that while adding user to board or workspace, the response status code is 200 OK, but user's id is not listed in board/workspace members list sent back in response.
 
 
 Links to Trello API endpoints covered by tests:
